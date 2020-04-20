@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "576808108516",
+    "firebase_url": "https://trailer-bd80e.firebaseio.com",
+    "project_id": "trailer-bd80e",
+    "storage_bucket": "trailer-bd80e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:576808108516:android:99fe5d05453553718107f1",
+        "android_client_info": {
+          "package_name": "com.example.trailer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "576808108516-jdkmljj47k8dba10pkmuh21gqnhbd2ht.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.trailer",
+            "certificate_hash": "1eda516a1eae720c0834b9d98fd5a9976864950e"
+          }
+        },
+        {
+          "client_id": "576808108516-ab05rv3oputch4oqtbg2964fm1m4i12i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-DhVA_8xMwGXBfEH-OPneAShHUFkzHIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "576808108516-ab05rv3oputch4oqtbg2964fm1m4i12i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
