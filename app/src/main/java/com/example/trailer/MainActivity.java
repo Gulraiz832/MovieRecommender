@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         ImageView image;
         image=findViewById(R.id.first);
+        //This is used to load pictures
         Picasso.get().load("https://firebasestorage.googleapis.com/v0/b/trailer-bd80e.appspot.com/o/flash.jpg?alt=media").into(image);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
