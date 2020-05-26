@@ -1,5 +1,7 @@
 package com.example.trailer;
 
+import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -7,12 +9,18 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
 import android.view.MenuItem;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -21,21 +29,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
-        implements NavigationView.OnNavigationItemSelectedListener {
-
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+List<String> titles=new ArrayList<>();
+List<String>links=new ArrayList<>();
+ListView list;
+int flag=0;
+    FirebaseDatabase Movie_Database = FirebaseDatabase.getInstance();
+    DatabaseReference title_ref = Movie_Database.getReference("Title");
+    DatabaseReference link_ref = Movie_Database.getReference("Link");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        ImageView image;
-        image=findViewById(R.id.first);
+        ImageView image=null;
         //This is used to load pictures
-        Picasso.get().load("https://firebasestorage.googleapis.com/v0/b/trailer-bd80e.appspot.com/o/flash.jpg?alt=media").into(image);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -54,9 +72,58 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         navigationView.setNavigationItemSelectedListener(this);
+        list=findViewById(R.id.main);
+        list.setTag("Hello");
+       final Intent intent =new Intent(this,TrailerPage.class);
+       title_ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                 titles =(ArrayList<String>)dataSnapshot.getValue();
+                 if(titles.size()>0&&links.size()>0)
+                     flag=1;
+                 if(flag==1)
+                 {
+
+                  Adapter adapter=new Adapter(titles,links,MainActivity.this);
+                  list.setAdapter(adapter);
+                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        link_ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                links=(ArrayList<String>) dataSnapshot.getValue();
+                if(titles.size()>0&&links.size()>0)
+                    flag=1;
+                if(flag==1)
+                {
+                    Adapter adapter=new Adapter(titles,links,MainActivity.this);
+                    list.setAdapter(adapter);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
     }
 
-    @Override
+
+
+   static void start(Intent intent){
+
+   }
+
+
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
