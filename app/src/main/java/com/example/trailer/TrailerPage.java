@@ -6,26 +6,32 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.MediaController;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class TrailerPage extends AppCompatActivity {
     FirebaseDatabase Movie_Database = FirebaseDatabase.getInstance();
-    PlayerView videoView;
-    SimpleExoPlayer exoPlayer;
+    //PlayerView videoView;
+    //SimpleExoPlayer exoPlayer;
+    VideoView videoView;
+    private AdView mAdView;
     private boolean playWhenReady = true;
     private int currentWindow = 0;
     private long playbackPosition = 0;
@@ -34,36 +40,52 @@ public class TrailerPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trailer_page);
          videoView =findViewById(R.id.video);
-         exoPlayer= ExoPlayerFactory.newSimpleInstance(this);
-         videoView.setPlayer(exoPlayer);
-
-       // MediaController mediaController= new MediaController(this);
-        //mediaController.setAnchorView(videoView);
-
+        // exoPlayer= ExoPlayerFactory.newSimpleInstance(this);
+         //videoView.setPlayer(exoPlayer);
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        MediaController mediaController= new MediaController(this);
+        mediaController.setPadding(0,0,0,950);
+        mediaController.setAnchorView(videoView);
 
         String name=getIntent().getStringExtra("Name");
-      //  videoView.setMediaController(mediaController);
+       videoView.setMediaController(mediaController);
         getLink(name);
-
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
 
     }
     void getLink(String name){
-        String table="Information/"+name+"/Trailer";
+       // String table="Information/"+name+"/Trailer";
+        String table="Information/"+name;
 
         DatabaseReference video_link = Movie_Database.getReference(table);
         video_link.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String link=dataSnapshot.getValue(String.class);
-                Uri uri=Uri.parse(link);
+                Movie movie=dataSnapshot.getValue(Movie.class);
+                Uri uri=Uri.parse(movie.Trailer);
                 if(uri!=null){
-                    DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(TrailerPage.this, "exoplayer-codelab");
-                    MediaSource mediaSource =  new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+                    RatingBar ratingBar=findViewById(R.id.ratingBar);
+                    TextView text=findViewById(R.id.rate);
+                    TextView text1=findViewById(R.id.genre);
+                    String genre="";
+                    for(String s:movie.Genre){
+                        genre=genre+s;
+                    }
+                    text1.setText(genre);
+                    ratingBar.setRating(movie.Rating);
+                    String rat=Float.toString(movie.Rating)+"/10";
+                    text.setText(rat);
+                    videoView.setVideoURI(uri);
+                    videoView.requestFocus();
+                    videoView.start();
 
-                    exoPlayer.setPlayWhenReady(playWhenReady);
-                    exoPlayer.seekTo(currentWindow, playbackPosition);
-                    exoPlayer.prepare(mediaSource, false, false);
                 }
                 else
                     Toast.makeText(TrailerPage.this,"Server is Busy",Toast.LENGTH_LONG).show();
@@ -78,4 +100,26 @@ public class TrailerPage extends AppCompatActivity {
 
 
     }
+    void getAdditional(String name){
+        String table="Information/"+name;
+
+        DatabaseReference information = Movie_Database.getReference(table);
+        information.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                HashMap<String, List<String>> data=new HashMap<>();
+                data=(HashMap<String, List<String>>) dataSnapshot.getValue();
+                RatingBar ratingBar=findViewById(R.id.ratingBar);
+                TextView text=findViewById(R.id.rate);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
 }
