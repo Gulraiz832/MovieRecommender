@@ -1,7 +1,10 @@
 package com.example.trailer;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.Image;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 
 import com.google.android.gms.ads.MobileAds;
@@ -44,6 +47,20 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 List<String> titles=new ArrayList<>();
 List<String>links=new ArrayList<>();
+static Context context;
+    @Override
+    protected void onStop() {
+        active=false;
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        active=true;
+        super.onStart();
+    }
+
+    static boolean  active=false;
 ListView list;
 int flag=0;
     FirebaseDatabase Movie_Database = FirebaseDatabase.getInstance();
@@ -52,8 +69,10 @@ int flag=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
+         context=this;
+      //  IntentFilter intentFilter = new IntentFilter();
+        //intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        //registerReceiver(new Broadcast(), intentFilter);
         setContentView(R.layout.activity_main);
         ImageView image=null;
         //This is used to load pictures

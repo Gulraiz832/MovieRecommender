@@ -3,6 +3,7 @@ package com.example.trailer;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.MediaController;
@@ -31,13 +32,17 @@ public class TrailerPage extends AppCompatActivity {
     //PlayerView videoView;
     //SimpleExoPlayer exoPlayer;
     VideoView videoView;
+    static Context trailercontext;
+    static String title;
     private AdView mAdView;
     private boolean playWhenReady = true;
     private int currentWindow = 0;
     private long playbackPosition = 0;
+   static boolean active=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        trailercontext=this;
         setContentView(R.layout.activity_trailer_page);
          videoView =findViewById(R.id.video);
         // exoPlayer= ExoPlayerFactory.newSimpleInstance(this);
@@ -52,6 +57,7 @@ public class TrailerPage extends AppCompatActivity {
         mediaController.setAnchorView(videoView);
 
         String name=getIntent().getStringExtra("Name");
+        title=name;
        videoView.setMediaController(mediaController);
         getLink(name);
         mAdView = findViewById(R.id.adView);
@@ -59,6 +65,17 @@ public class TrailerPage extends AppCompatActivity {
         mAdView.loadAd(adRequest);
 
 
+    }
+    @Override
+    protected void onStop() {
+        active=false;
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        active=true;
+        super.onStart();
     }
     void getLink(String name){
        // String table="Information/"+name+"/Trailer";
