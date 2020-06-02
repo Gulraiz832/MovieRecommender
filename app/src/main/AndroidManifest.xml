@@ -23,6 +23,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.example.trailer.Content"
+            android:name=".Content"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:readPermission="com.example.attendance.recordProvider.permRead"
+            android:writePermission="com.example.attendance.recordProvider.permWrite"
+            />
     </application>
+    <permission
+        android:name="com.example.attendance.recordProvider.permWrite"
+        android:authorities="com.example.recordProvider"
+        android:exported="true"
+        android:protectionLevel="signature" />
+
+    <permission
+        android:name="com.example.attendance.recordProvider.permRead"
+        android:authorities="com.example.recordProvider"
+        android:exported="true"
+        android:protectionLevel="signature" />
 
 </manifest>
