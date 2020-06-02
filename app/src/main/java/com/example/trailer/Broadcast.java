@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.widget.Toast;
 
 public class Broadcast extends BroadcastReceiver {
 
@@ -15,7 +16,16 @@ public class Broadcast extends BroadcastReceiver {
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         boolean isConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
         if (isConnected){
-           if(MainActivity.active){
+            Toast.makeText(context,"Connected To Internet Loading Started!!",Toast.LENGTH_LONG).show();
+
+        }
+        else
+        {
+            Toast.makeText(context,"Please Connect To Internet",Toast.LENGTH_LONG).show();
+        }
+
+    }
+     /*if(MainActivity.active){
                Context context1=MainActivity.context;
                Intent intent1 =new Intent(context1,MainActivity.class);
                ((Activity)context1).finish();
@@ -30,9 +40,5 @@ public class Broadcast extends BroadcastReceiver {
                 ((Activity)context1).finish();
                 context1.startActivity(intent1);
 
-            }
-
-        }
-
-    }
+            }*/
 }

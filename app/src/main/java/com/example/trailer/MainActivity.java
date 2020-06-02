@@ -70,12 +70,11 @@ int flag=0;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
          context=this;
-      //  IntentFilter intentFilter = new IntentFilter();
-        //intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        //registerReceiver(new Broadcast(), intentFilter);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(new Broadcast(), intentFilter);
         setContentView(R.layout.activity_main);
-        ImageView image=null;
-        //This is used to load pictures
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

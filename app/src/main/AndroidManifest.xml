@@ -32,11 +32,7 @@
             android:readPermission="com.example.attendance.recordProvider.permRead"
             android:writePermission="com.example.attendance.recordProvider.permWrite"
             />
-        <receiver android:name=".Broadcast">
-        <intent-filter>
-            <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-        </intent-filter>
-        </receiver>
+
     </application>
     <permission
         android:name="com.example.attendance.recordProvider.permWrite"
