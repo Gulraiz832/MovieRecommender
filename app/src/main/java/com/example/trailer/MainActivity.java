@@ -13,6 +13,7 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.view.ContextMenu;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -66,6 +67,9 @@ int flag=0;
     FirebaseDatabase Movie_Database = FirebaseDatabase.getInstance();
     DatabaseReference title_ref = Movie_Database.getReference("Title");
     DatabaseReference link_ref = Movie_Database.getReference("Link");
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +99,7 @@ int flag=0;
 
         navigationView.setNavigationItemSelectedListener(this);
         list=findViewById(R.id.main);
-        list.setTag("Hello");
+        registerForContextMenu(list);
        final Intent intent =new Intent(this,TrailerPage.class);
        title_ref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -161,6 +165,7 @@ int flag=0;
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

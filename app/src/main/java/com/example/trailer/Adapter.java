@@ -85,6 +85,13 @@ public class Adapter extends BaseAdapter {
                             context.startActivity(intent);
                         }
                     });
+                    
+                    image.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View view) {
+                           return true;
+                        }
+                    });
                     added.add(titles.get(i));
                     final String tag=(String) image.getTag();
                     count++;

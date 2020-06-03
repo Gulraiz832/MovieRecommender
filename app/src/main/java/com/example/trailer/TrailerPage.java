@@ -1,11 +1,15 @@
 package com.example.trailer;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -18,17 +22,28 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class TrailerPage extends AppCompatActivity {
     FirebaseDatabase Movie_Database = FirebaseDatabase.getInstance();
+    final String username="gulraiz";
+    ImageView image;
+    ImageView image2;
+    boolean fav_available=false;
+    boolean wlater_available=true;
+    HashMap<String,String>watchlater;
+
+    int remove=0;
     //PlayerView videoView;
     //SimpleExoPlayer exoPlayer;
     VideoView videoView;
@@ -55,9 +70,11 @@ public class TrailerPage extends AppCompatActivity {
         MediaController mediaController= new MediaController(this);
         mediaController.setPadding(0,0,0,950);
         mediaController.setAnchorView(videoView);
-
+          image=findViewById(R.id.favt);
+          image2=findViewById(R.id.watch_lat);
         String name=getIntent().getStringExtra("Name");
         title=name;
+        getFavandWatchLater();
        videoView.setMediaController(mediaController);
         getLink(name);
         mAdView = findViewById(R.id.adView);
@@ -65,6 +82,41 @@ public class TrailerPage extends AppCompatActivity {
         mAdView.loadAd(adRequest);
 
 
+    }
+    void getFavandWatchLater(){
+
+         DatabaseReference databaseReference=Movie_Database.getReference("UserInfo").child(username).child("Fav");
+         databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                HashMap<String,String>favs;
+                favs=(HashMap<String, String>) dataSnapshot.getValue();
+               fav_available= favs.containsKey(title);
+                if(fav_available)
+                    image.setBackgroundResource(R.drawable.fav_icon_fill);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        DatabaseReference databaseReference1=Movie_Database.getReference("UserInfo").child(username).child("WatchLater");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                HashMap<String,String>favs;
+                favs=(HashMap<String, String>) dataSnapshot.getValue();
+                wlater_available= favs.containsKey(title);
+                if(wlater_available)
+                    image2.setBackgroundResource(R.drawable.watch_later);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
     @Override
     protected void onStop() {
@@ -139,4 +191,71 @@ public class TrailerPage extends AppCompatActivity {
 
     }
 
+
+    public void addToFav(View view) {
+        boolean login=true;// to be in login class to check either user is loged in or not
+
+
+
+        if(login){
+            String table="UserInfo";
+            final DatabaseReference user_info= Movie_Database.getReference(table).child(username).child("Fav");
+            if(fav_available)
+            {
+                user_info.child(title).setValue(null);
+                fav_available=!fav_available;
+                image.setBackgroundResource(R.drawable.fav_icon_empty);
+                Toast.makeText(this,"Removed From Liked Videos",Toast.LENGTH_LONG).show();
+            }
+
+            else
+            {
+
+                user_info.child(title).setValue("True");
+                fav_available=true;
+                image.setBackgroundResource(R.drawable.fav_icon_fill);
+                Toast.makeText(this,"Added From Liked Videos",Toast.LENGTH_LONG).show();
+            }
+
+
+
+
+
+
+
+        }
+    }
+    public void addToLater(View view) {
+        boolean login=true;// to be in login class to check either user is loged in or not
+
+
+
+        if(login){
+            String table="UserInfo";
+            final DatabaseReference user_info= Movie_Database.getReference(table).child(username).child("WatchLater");
+            if(wlater_available)
+            {
+                user_info.child(title).setValue(null);
+                wlater_available=!wlater_available;
+                image2.setBackgroundResource(R.drawable.watch_later1);
+                Toast.makeText(this,"Removed From Watch Later",Toast.LENGTH_LONG).show();
+            }
+
+            else
+            {
+
+                user_info.child(title).setValue("True");
+                wlater_available=true;
+                image2.setBackgroundResource(R.drawable.watch_later);
+                Toast.makeText(this,"Added to Watch Later",Toast.LENGTH_LONG).show();
+            }
+
+
+
+
+
+
+
+        }
+    }
 }

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.trailer">
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,10 +10,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9418172952040999~3447496355"/>
-        <activity android:name=".TrailerPage"></activity>
+        <activity android:name=".Display"></activity>
+
+        <activity android:name=".TrailerPage" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -24,27 +24,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9418172952040999~3447496355" />
+
         <provider
-            android:authorities="com.example.trailer.Content"
             android:name=".Content"
+            android:authorities="com.example.trailer.Content"
             android:exported="true"
             android:grantUriPermissions="true"
             android:readPermission="com.example.attendance.recordProvider.permRead"
-            android:writePermission="com.example.attendance.recordProvider.permWrite"
-            />
-
+            android:writePermission="com.example.attendance.recordProvider.permWrite" />
     </application>
-    <permission
-        android:name="com.example.attendance.recordProvider.permWrite"
-        android:authorities="com.example.recordProvider"
-        android:exported="true"
-        android:protectionLevel="signature" />
 
     <permission
         android:name="com.example.attendance.recordProvider.permRead"
         android:authorities="com.example.recordProvider"
         android:exported="true"
         android:protectionLevel="signature" />
+    <permission
+        android:name="com.example.attendance.recordProvider.permWrite"
+        android:authorities="com.example.recordProvider"
+        android:exported="true"
+        android:protectionLevel="signature" />
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>
