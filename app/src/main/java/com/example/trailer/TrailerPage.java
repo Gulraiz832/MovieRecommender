@@ -38,6 +38,7 @@ public class TrailerPage extends AppCompatActivity {
     FirebaseDatabase Movie_Database = FirebaseDatabase.getInstance();
     final String username="gulraiz";
     ImageView image;
+    Movie movie;
     ImageView image2;
     boolean fav_available=false;
     boolean wlater_available=true;
@@ -72,14 +73,20 @@ public class TrailerPage extends AppCompatActivity {
         mediaController.setAnchorView(videoView);
           image=findViewById(R.id.favt);
           image2=findViewById(R.id.watch_lat);
+
         String name=getIntent().getStringExtra("Name");
         title=name;
         getFavandWatchLater();
+
        videoView.setMediaController(mediaController);
         getLink(name);
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
+        if(MainActivity.watchlater==1){
+            image2.setBackgroundResource(R.drawable.watch_later);
+            Toast.makeText(this,"Removed from watch later",Toast.LENGTH_LONG);
+        }
 
 
     }
@@ -91,9 +98,11 @@ public class TrailerPage extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 HashMap<String,String>favs;
                 favs=(HashMap<String, String>) dataSnapshot.getValue();
-               fav_available= favs.containsKey(title);
-                if(fav_available)
-                    image.setBackgroundResource(R.drawable.fav_icon_fill);
+                if(dataSnapshot.getKey()=="Fav") {
+                    fav_available = favs.containsKey(title);
+                    if (fav_available)
+                        image.setBackgroundResource(R.drawable.fav_icon_fill);
+                }
             }
 
             @Override
@@ -102,14 +111,17 @@ public class TrailerPage extends AppCompatActivity {
             }
         });
         DatabaseReference databaseReference1=Movie_Database.getReference("UserInfo").child(username).child("WatchLater");
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        databaseReference1.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 HashMap<String,String>favs;
                 favs=(HashMap<String, String>) dataSnapshot.getValue();
-                wlater_available= favs.containsKey(title);
+                if(dataSnapshot.getKey()=="WatchLater")
+                { wlater_available= favs.containsKey(title);
                 if(wlater_available)
                     image2.setBackgroundResource(R.drawable.watch_later);
+                }
+
             }
 
             @Override
@@ -137,7 +149,7 @@ public class TrailerPage extends AppCompatActivity {
         video_link.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Movie movie=dataSnapshot.getValue(Movie.class);
+               movie=dataSnapshot.getValue(Movie.class);
                 Uri uri=Uri.parse(movie.Trailer);
                 if(uri!=null){
                     RatingBar ratingBar=findViewById(R.id.ratingBar);
@@ -211,7 +223,7 @@ public class TrailerPage extends AppCompatActivity {
             else
             {
 
-                user_info.child(title).setValue("True");
+                user_info.child(title).setValue(title);
                 fav_available=true;
                 image.setBackgroundResource(R.drawable.fav_icon_fill);
                 Toast.makeText(this,"Added From Liked Videos",Toast.LENGTH_LONG).show();
@@ -244,7 +256,7 @@ public class TrailerPage extends AppCompatActivity {
             else
             {
 
-                user_info.child(title).setValue("True");
+                user_info.child(title).setValue(title);
                 wlater_available=true;
                 image2.setBackgroundResource(R.drawable.watch_later);
                 Toast.makeText(this,"Added to Watch Later",Toast.LENGTH_LONG).show();

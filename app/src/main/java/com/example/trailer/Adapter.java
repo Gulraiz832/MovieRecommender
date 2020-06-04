@@ -21,6 +21,7 @@ public class Adapter extends BaseAdapter {
     List<String>added=new ArrayList<>();
     List<String>titles;
     List<String>links;
+    static int count1=0;
     static Intent intent;
     Context context;
     public Adapter(List<String>titles,List<String>links,Context cont){
@@ -29,6 +30,7 @@ public class Adapter extends BaseAdapter {
         context=cont;
 
     }
+
     public int getCount() {
         return titles.size();
     }
@@ -46,67 +48,67 @@ public class Adapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         View myview = view;
-        if (myview == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            myview = inflater.inflate(R.layout.adapter_layout, null);
-        }
-        ImageView image=null;
-        TextView text=null;
 
-        int count=0,flag=1;
-        while(count!=3&&flag==1){
-            switch (count){
-                case 0:
-                     image=myview.findViewById(R.id.image);
-                     text=myview.findViewById(R.id.title);
-                     break;
-                case 1:
-                    image=myview.findViewById(R.id.image2);
-                    text=myview.findViewById(R.id.title2);
-                    break;
-                case 2:
-                    image=myview.findViewById(R.id.image3);
-                    text=myview.findViewById(R.id.title3);
-                    break;
 
+            if (myview == null) {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                myview = inflater.inflate(R.layout.adapter_layout, null);
             }
+            ImageView image = null;
+            TextView text = null;
 
-            if(i<titles.size()) {
-                if(!added.contains(titles.get(i))) {
-                    text.setText(titles.get(i));
-                    Picasso.get().load(links.get(i)).resize(120,180).into(image);
-                    image.setTag(titles.get(i));
-                    final Intent intent=new Intent(context,TrailerPage.class);
-                    intent.putExtra("Name",(String) image.getTag());
-                    image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
+            int count = 0, flag = 1;
+            while (count != 3 && flag == 1) {
+                switch (count) {
+                    case 0:
+                        image = myview.findViewById(R.id.image);
+                        text = myview.findViewById(R.id.title);
+                        break;
+                    case 1:
+                        image = myview.findViewById(R.id.image2);
+                        text = myview.findViewById(R.id.title2);
+                        break;
+                    case 2:
+                        image = myview.findViewById(R.id.image3);
+                        text = myview.findViewById(R.id.title3);
+                        break;
 
-                            context.startActivity(intent);
-                        }
-                    });
-                    
-                    image.setOnLongClickListener(new View.OnLongClickListener() {
-                        @Override
-                        public boolean onLongClick(View view) {
-                           return true;
-                        }
-                    });
-                    added.add(titles.get(i));
-                    final String tag=(String) image.getTag();
-                    count++;
                 }
-                i++;
-            }
-            else
-                flag=0;
 
+                if (i < titles.size()) {
+                    if (!added.contains(titles.get(i))) {
+                        text.setText(titles.get(i));
+                        Picasso.get().load(links.get(i)).resize(120, 180).into(image);
+                        image.setTag(titles.get(i));
+                        final Intent intent = new Intent(context, TrailerPage.class);
+                        intent.putExtra("Name", (String) image.getTag());
+                        image.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                context.startActivity(intent);
+                            }
+                        });
+
+                        image.setOnLongClickListener(new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View view) {
+                                return true;
+                            }
+                        });
+                        added.add(titles.get(i));
+                        final String tag = (String) image.getTag();
+                        count++;
+                    }
+                    i++;
+                } else
+                    flag = 0;
+
+            }
+
+
+
+            return myview;
         }
 
-
-
-
-
-        return myview;
-    }
 }

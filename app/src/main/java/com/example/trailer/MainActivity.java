@@ -43,11 +43,15 @@ import android.widget.ListView;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-List<String> titles=new ArrayList<>();
-List<String>links=new ArrayList<>();
+static List<String> titles=new ArrayList<>();
+static List<String>links=new ArrayList<>();
+static List<String>titles_t=new ArrayList<>();
+String logged_user="gulraiz";
+static int watchlater=0;
 static Context context;
     @Override
     protected void onStop() {
@@ -86,8 +90,7 @@ int flag=0;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
             }
         });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -109,7 +112,7 @@ int flag=0;
                      flag=1;
                  if(flag==1)
                  {
-
+                   titles_t=titles;
                   Adapter adapter=new Adapter(titles,links,MainActivity.this);
                   list.setAdapter(adapter);
                  }
@@ -176,7 +179,12 @@ int flag=0;
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+
+            startDisplay("Fav");
+        }
+        if(id==R.id.watch_later_activity){
+            watchlater=1;
+            startDisplay("WatchLater");
         }
 
         return super.onOptionsItemSelected(item);
@@ -188,11 +196,17 @@ int flag=0;
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+
         if (id == R.id.nav_home) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        }
+        else if (id == R.id.nav_gallery) {
+
+         // startDisplay("Fav");
+
 
         } else if (id == R.id.nav_slideshow) {
+
 
         } else if (id == R.id.nav_tools) {
 
@@ -206,4 +220,43 @@ int flag=0;
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+
+
+  public void startDisplay(String s) {
+
+      DatabaseReference databaseReference=Movie_Database.getReference().child("UserInfo").child(logged_user).child(s);
+      databaseReference.addValueEventListener(new ValueEventListener() {
+          @Override
+          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+              HashMap<String,String>map=new HashMap<>();
+              int i=0;
+              for(String s:titles){
+                  map.put(s,links.get(i));
+                  i++;
+              }
+              links.clear();
+              titles.clear();
+              HashMap<String,String>like;
+              like=(HashMap<String, String>) dataSnapshot.getValue();
+              if(like!=null){
+                  titles.addAll(like.values());
+                  for(String s:titles){
+                      links.add(map.get(s));
+
+                  }
+
+
+              }
+              Intent intent=new Intent(MainActivity.this,Display.class);
+              startActivity(intent);
+          }
+
+          @Override
+          public void onCancelled(@NonNull DatabaseError databaseError) {
+
+          }
+      });
+  }
 }
