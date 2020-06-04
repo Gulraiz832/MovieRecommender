@@ -1,19 +1,13 @@
 package com.example.trailer;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.database.Cursor;
 import android.media.Image;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import android.view.ContextMenu;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -37,52 +31,62 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-static List<String> titles=new ArrayList<>();
-static List<String>links=new ArrayList<>();
-static List<String>titles_t=new ArrayList<>();
-String logged_user="gulraiz";
-static int watchlater=0;
-static Context context;
-    @Override
-    protected void onStop() {
-        active=false;
-        super.onStop();
-    }
-
-    @Override
-    protected void onStart() {
-        active=true;
-        super.onStart();
-    }
-
-    static boolean  active=false;
-ListView list;
-int flag=0;
+    List<String> titles=new ArrayList<>();
+    List<String>links=new ArrayList<>();
+    ListView list;
+    int flag=0;
     FirebaseDatabase Movie_Database = FirebaseDatabase.getInstance();
     DatabaseReference title_ref = Movie_Database.getReference("Title");
     DatabaseReference link_ref = Movie_Database.getReference("Link");
 
+    //for drawer layout
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+
+
+
+
+
+    DatabaseReference userReference;
+    DataBaseHelper db;
+    DrawerLayout drawer;
+    String username;
+    ArrayList<String> usernameList;
+    ArrayList<String> emailList;
+    ArrayList<Float> ratingList = new ArrayList<>();
+    ArrayList<Movie> movieList;
+    GridView gridView;
+    NewAdapter adapter;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-         context=this;
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(new Broadcast(), intentFilter);
         setContentView(R.layout.activity_main);
 
+
+        db = new DataBaseHelper(this);
+        returningUser();
+
+        //store all movies from firebase in movie array list
+        getMovieData();
+
+
+        ImageView image = null;
+        //This is used to load pictures
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -90,65 +94,26 @@ int flag=0;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
 
         navigationView.setNavigationItemSelectedListener(this);
-        list=findViewById(R.id.main);
-        registerForContextMenu(list);
-       final Intent intent =new Intent(this,TrailerPage.class);
-       title_ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                 titles =(ArrayList<String>)dataSnapshot.getValue();
-                 if(titles.size()>0&&links.size()>0)
-                     flag=1;
-                 if(flag==1)
-                 {
-                   titles_t=titles;
-                  Adapter adapter=new Adapter(titles,links,MainActivity.this);
-                  list.setAdapter(adapter);
-                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        link_ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                links=(ArrayList<String>) dataSnapshot.getValue();
-                if(titles.size()>0&&links.size()>0)
-                    flag=1;
-                if(flag==1)
-                {
-                    Adapter adapter=new Adapter(titles,links,MainActivity.this);
-                    list.setAdapter(adapter);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
+        final Intent intent =new Intent(this,TrailerPage.class);
 
     }
 
 
 
-   static void start(Intent intent){
+    static void start(Intent intent){
 
    }
 
@@ -169,7 +134,6 @@ int flag=0;
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -179,84 +143,197 @@ int flag=0;
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-
-            startDisplay("Fav");
-        }
-        if(id==R.id.watch_later_activity){
-            watchlater=1;
-            startDisplay("WatchLater");
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+
     @SuppressWarnings("StatementWithEmptyBody")
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-
         if (id == R.id.nav_home) {
-            // Handle the camera action
-        }
-        else if (id == R.id.nav_gallery) {
 
-         // startDisplay("Fav");
+        } else if (id == R.id.nav_gallery) {
 
+        } else if (id == R.id.topRated) {
+            displayTopRated();
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.genres) {
+            displayGenres();
 
-
-        } else if (id == R.id.nav_tools) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.login) {
+            login();
 
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+        drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
 
+    private void login()
+    {
+        //storing list of usernames so that we can check in RegisterActivity whether username already in use or not
+        usernameList = new ArrayList<>();
+        emailList = new ArrayList<>();
+
+        userReference = FirebaseDatabase.getInstance().getReference().child("Account");
+
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists())
+                {
+                    for(DataSnapshot obj: dataSnapshot.getChildren())
+                    {
+                        String usernameFromDB = obj.getKey().toString();
+                        String emailFromDB = obj.child("email").getValue().toString();
+
+                        usernameList.add(usernameFromDB);
+                        emailList.add(emailFromDB);
+                    }
+
+                }
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.putStringArrayListExtra("usernameList", usernameList);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
 
-  public void startDisplay(String s) {
-
-      DatabaseReference databaseReference=Movie_Database.getReference().child("UserInfo").child(logged_user).child(s);
-      databaseReference.addValueEventListener(new ValueEventListener() {
-          @Override
-          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-              HashMap<String,String>map=new HashMap<>();
-              int i=0;
-              for(String s:titles){
-                  map.put(s,links.get(i));
-                  i++;
-              }
-              links.clear();
-              titles.clear();
-              HashMap<String,String>like;
-              like=(HashMap<String, String>) dataSnapshot.getValue();
-              if(like!=null){
-                  titles.addAll(like.values());
-                  for(String s:titles){
-                      links.add(map.get(s));
-
-                  }
+    }
 
 
-              }
-              Intent intent=new Intent(MainActivity.this,Display.class);
-              startActivity(intent);
-          }
+    private void displayTopRated()
+    {
 
-          @Override
-          public void onCancelled(@NonNull DatabaseError databaseError) {
+        Collections.sort(movieList);
+        int num = 5;
 
-          }
-      });
-  }
+        if(ratingList != null)
+        {
+            ratingList.clear();
+        }
+
+        if(links != null)
+        {
+            links.clear();
+        }
+
+        if(titles != null)
+        {
+            titles.clear();
+        }
+
+
+        for(Movie m: movieList)
+        {
+            ratingList.add(m.getRating());
+            links.add(m.getImageLink());
+            titles.add(m.getTitle());
+        }
+
+        Intent intent = new Intent(MainActivity.this, TopRatedMovieActivity.class);
+        intent.putExtra("movieList", movieList);
+        startActivity(intent);
+
+//        Adapter adapter=new Adapter(titles,links,MainActivity.this);
+//        list.setAdapter(adapter);
+
+    }
+
+    private void displayGenres()
+    {
+        Intent intent = new Intent(MainActivity.this, GenreActivity.class);
+        intent.putExtra("movieList", movieList);
+        startActivity(intent);
+    }
+
+    private void returningUser()
+    {
+        Cursor cursor = db.getData();
+        if(cursor.getCount() != 0)
+        {
+            boolean userFound = false;
+
+            //finding out which user had logged in before and logging them into account
+            while(cursor.moveToNext() && userFound == false)
+            {
+                if(cursor.getInt(1) == 1)
+                {
+                    username = cursor.getString(0);
+                    userFound = true;
+                }
+            }
+
+            if(userFound == true)
+            {
+                Intent intent = new Intent(MainActivity.this, LoggedInActivity.class);
+                intent.putExtra("username", username);
+                startActivity(intent);
+            }
+
+        }
+    }
+
+
+    private void getMovieData()
+    {
+        movieList = new ArrayList<>();
+        final ArrayList<String> genreList = new ArrayList<>();
+
+        userReference = FirebaseDatabase.getInstance().getReference().child("Information");
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists())
+                {
+                    for(DataSnapshot obj: dataSnapshot.getChildren())
+                    {
+                        String title = obj.getKey().toString();
+                        String imageLink = obj.child("TitleImage").getValue().toString();
+                        String trailerLink = obj.child("Trailer").getValue().toString();
+                        float rating = Float.valueOf(obj.child("Rating").getValue().toString());
+
+                        for(DataSnapshot genre: obj.child("Genre").getChildren())
+                        {
+                            //since we don't want value of specific attribute
+                            //we can just use .getValue and it will get the first value, then the next
+                            //and so on
+                            genreList.add(genre.getValue().toString());
+                        }
+
+                        Movie m = new Movie(title, imageLink, trailerLink, rating, genreList);
+                        movieList.add(m);
+
+                    }
+
+                    gridView = (GridView) findViewById(R.id.movieGridView);
+                    adapter = new NewAdapter(MainActivity.this, R.layout.image_adapter_view_layout, movieList);
+                    gridView.setAdapter(adapter);
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
 }
