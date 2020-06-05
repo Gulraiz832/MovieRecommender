@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,7 +10,15 @@
     android:layout_height="match_parent"
     android:background="#201C1C"
     tools:context=".TrailerPage">
-
+    <VideoView
+        android:id="@+id/video"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:id="@+id/favt"
@@ -43,52 +55,44 @@
         style="?android:attr/ratingBarStyleSmall"
         android:layout_width="165dp"
         android:layout_height="23dp"
-        android:layout_marginBottom="36dp"
         android:enabled="false"
         android:isIndicator="true"
         android:numStars="10"
         android:stepSize="0.1"
-        app:layout_constraintBottom_toTopOf="@+id/genre"
-        app:layout_constraintStart_toEndOf="@+id/rate" />
+        app:layout_constraintBottom_toTopOf="@id/genre"
+        app:layout_constraintStart_toEndOf="@+id/rate"
+        android:layout_marginBottom="10dp"/>
 
     <TextView
         android:id="@+id/genre"
         android:layout_width="250dp"
         android:layout_height="56dp"
-        android:layout_marginBottom="120dp"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView" />
+        app:layout_constraintStart_toEndOf="@+id/textView"
+        android:layout_marginBottom="10dp"/>
 
     <TextView
         android:id="@+id/rate"
         android:layout_width="60dp"
         android:layout_height="24dp"
-        android:layout_marginBottom="35dp"
         android:text="9/10"
         android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/genre"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginBottom="10dp"/>
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="60dp"
         android:layout_height="56dp"
-        android:layout_marginBottom="120dp"
         android:text="Genre"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <VideoView
-        android:id="@+id/video"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        android:layout_marginBottom="10dp"/>
+
+
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
@@ -106,3 +110,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

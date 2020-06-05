@@ -11,8 +11,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Display"></activity>
-
         <activity android:name=".TrailerPage" />
+        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".GenreActivity"></activity>
+        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".LoggedInActivity"></activity>
+        <activity android:name=".TopRatedMovieActivity"></activity>
 
         <activity
             android:name=".MainActivity"

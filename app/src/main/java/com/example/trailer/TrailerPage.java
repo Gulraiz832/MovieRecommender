@@ -36,23 +36,19 @@ import java.util.List;
 
 public class TrailerPage extends AppCompatActivity {
     FirebaseDatabase Movie_Database = FirebaseDatabase.getInstance();
-    final String username="gulraiz";
+     String username="gulraiz";
+
+    boolean login=false;
     ImageView image;
     ImageView image2;
     boolean fav_available=false;
     boolean wlater_available=true;
     HashMap<String,String>watchlater;
-
-    int remove=0;
-    //PlayerView videoView;
-    //SimpleExoPlayer exoPlayer;
     VideoView videoView;
     static Context trailercontext;
     static String title;
     private AdView mAdView;
-    private boolean playWhenReady = true;
-    private int currentWindow = 0;
-    private long playbackPosition = 0;
+     Movie movie;
    static boolean active=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,21 +56,26 @@ public class TrailerPage extends AppCompatActivity {
         trailercontext=this;
         setContentView(R.layout.activity_trailer_page);
          videoView =findViewById(R.id.video);
-        // exoPlayer= ExoPlayerFactory.newSimpleInstance(this);
-         //videoView.setPlayer(exoPlayer);
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
+        if(LoginActivity.state==1){
+            username=LoginActivity.global_username;
+            login=true;
+        }
+        else
+            username="null";
         MediaController mediaController= new MediaController(this);
-        mediaController.setPadding(0,0,0,950);
+        mediaController.setPadding(0,0,0,1000);
         mediaController.setAnchorView(videoView);
-          image=findViewById(R.id.favt);
-          image2=findViewById(R.id.watch_lat);
+        image=findViewById(R.id.favt);
+        image2=findViewById(R.id.watch_lat);
         String name=getIntent().getStringExtra("Name");
         title=name;
-        getFavandWatchLater();
+        if(login)
+         getFavandWatchLater();
        videoView.setMediaController(mediaController);
         getLink(name);
         mAdView = findViewById(R.id.adView);
@@ -91,9 +92,11 @@ public class TrailerPage extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 HashMap<String,String>favs;
                 favs=(HashMap<String, String>) dataSnapshot.getValue();
-               fav_available= favs.containsKey(title);
-                if(fav_available)
-                    image.setBackgroundResource(R.drawable.fav_icon_fill);
+                if(favs!=null) {
+                    fav_available = favs.containsKey(title);
+                    if (fav_available)
+                        image.setBackgroundResource(R.drawable.fav_icon_fill);
+                }
             }
 
             @Override
@@ -102,14 +105,16 @@ public class TrailerPage extends AppCompatActivity {
             }
         });
         DatabaseReference databaseReference1=Movie_Database.getReference("UserInfo").child(username).child("WatchLater");
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        databaseReference1.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 HashMap<String,String>favs;
                 favs=(HashMap<String, String>) dataSnapshot.getValue();
-                wlater_available= favs.containsKey(title);
-                if(wlater_available)
-                    image2.setBackgroundResource(R.drawable.watch_later);
+                if(favs!=null) {
+                    wlater_available = favs.containsKey(title);
+                    if (wlater_available)
+                        image2.setBackgroundResource(R.drawable.watch_later);
+                }
             }
 
             @Override
@@ -137,7 +142,7 @@ public class TrailerPage extends AppCompatActivity {
         video_link.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Movie movie=dataSnapshot.getValue(Movie.class);
+                 movie=dataSnapshot.getValue(Movie.class);
                 Uri uri=Uri.parse(movie.Trailer);
                 if(uri!=null){
                     RatingBar ratingBar=findViewById(R.id.ratingBar);
@@ -145,7 +150,7 @@ public class TrailerPage extends AppCompatActivity {
                     TextView text1=findViewById(R.id.genre);
                     String genre="";
                     for(String s:movie.Genre){
-                        genre=genre+s;
+                        genre=genre+" "+s;
                     }
                     text1.setText(genre);
                     ratingBar.setRating(movie.Rating);
@@ -169,33 +174,10 @@ public class TrailerPage extends AppCompatActivity {
 
 
     }
-    void getAdditional(String name){
-        String table="Information/"+name;
 
-        DatabaseReference information = Movie_Database.getReference(table);
-        information.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                HashMap<String, List<String>> data=new HashMap<>();
-                data=(HashMap<String, List<String>>) dataSnapshot.getValue();
-                RatingBar ratingBar=findViewById(R.id.ratingBar);
-                TextView text=findViewById(R.id.rate);
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
 
 
     public void addToFav(View view) {
-        boolean login=true;// to be in login class to check either user is loged in or not
-
-
 
         if(login){
             String table="UserInfo";
@@ -210,26 +192,18 @@ public class TrailerPage extends AppCompatActivity {
 
             else
             {
-
-                user_info.child(title).setValue("True");
+                Recomendation recomendation=new Recomendation(movie,title);
+                user_info.child(title).setValue(title);
                 fav_available=true;
                 image.setBackgroundResource(R.drawable.fav_icon_fill);
                 Toast.makeText(this,"Added From Liked Videos",Toast.LENGTH_LONG).show();
             }
 
-
-
-
-
-
-
         }
+        else
+            Toast.makeText(this,"Please Log In First",Toast.LENGTH_LONG).show();
     }
     public void addToLater(View view) {
-        boolean login=true;// to be in login class to check either user is loged in or not
-
-
-
         if(login){
             String table="UserInfo";
             final DatabaseReference user_info= Movie_Database.getReference(table).child(username).child("WatchLater");
@@ -244,7 +218,7 @@ public class TrailerPage extends AppCompatActivity {
             else
             {
 
-                user_info.child(title).setValue("True");
+                user_info.child(title).setValue(title);
                 wlater_available=true;
                 image2.setBackgroundResource(R.drawable.watch_later);
                 Toast.makeText(this,"Added to Watch Later",Toast.LENGTH_LONG).show();
@@ -257,5 +231,8 @@ public class TrailerPage extends AppCompatActivity {
 
 
         }
+        else
+            Toast.makeText(this,"Please Log In First",Toast.LENGTH_LONG).show();
     }
+
 }

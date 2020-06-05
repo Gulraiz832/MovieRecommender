@@ -8,8 +8,6 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-
-
     <include
         layout="@layout/app_bar_main"
         android:layout_width="match_parent"
@@ -22,7 +20,7 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        app:menu="@menu/activity_logged_in_drawer" />
 
 
 </androidx.drawerlayout.widget.DrawerLayout>

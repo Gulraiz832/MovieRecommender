@@ -32,17 +32,18 @@ public class Recomendation {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                DatabaseReference databaseReference1=Movie_Database.getReference().child("UserInfo").child(username);
+                DatabaseReference databaseReference1=Movie_Database.getReference().child("UserInfo").child(username).child("Recommendation");
                 for(DataSnapshot data:dataSnapshot.getChildren()){
-                    String key=dataSnapshot.getKey();
-                    Movie movie=dataSnapshot.getValue(Movie.class);
-                    movie.Genre.retainAll(ge);
-                    if(!movie.Genre.isEmpty()&&dataSnapshot.getKey()!=Title){
-                        movies.add(dataSnapshot.getKey());
-                        databaseReference1.child(key).setValue(key);
+                    String key=data.getKey();
+                    Movie movie=data.getValue(Movie.class);
+                    if(movie!=null) {
+                        movie.Genre.retainAll(ge);
+                        if (!movie.Genre.isEmpty() && !data.getKey().contains(Title)) {
+                            movies.add(dataSnapshot.getKey());
+                            databaseReference1.child(key).setValue(key);
+                        }
+
                     }
-
-
 
 
                 }
